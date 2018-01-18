@@ -1,0 +1,33 @@
+# TODO
+
+replace dummy calls with goloco endpoints
+wizard for checkin and put on tab
+show invoice if uploaded already
+font
+upload progress in all screens - landing / signup / upload
+trillbit
+terms and conditions
+signup validation
+hide initial state using activityindicator
+pass today's date for all calls
+
+# LATER
+
+redesign gatepass
+redesign auth
+redesign otp
+offer desc
+
+bill upload status
+status: GENERATED, CHECKED_IN, CHECKED_OUT
+
+
+
+
+
+---------------------
+not be done by friday
+---------------------
+profile photo upload
+admin page
+redesign
