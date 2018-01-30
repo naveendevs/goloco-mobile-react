@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Image, TouchableOpacity, ScrollView, View, Text, FlatList, ActivityIndicator, Dimensions } from 'react-native';
+import { StyleSheet, Animated, Image, TouchableOpacity, ScrollView, View, Text, FlatList, ActivityIndicator, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import PassesItem from '../components/PassesItem';
@@ -14,7 +14,8 @@ class MyClass extends React.Component {
 
     this.state = {
       placeDetailsLoading : false,
-      placeDetailsData : {}
+      placeDetailsData : {},
+      animValue: new Animated.Value(0)
     };
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));    
 
@@ -52,9 +53,27 @@ class MyClass extends React.Component {
     });
   };
 
+  showOfferDetails = (offerObj) => {
+    this.props.navigator.showLightBox({
+      screen: 'x.LightBox',
+      passProps: {
+        title: offerObj.offerName,
+        content: offerObj.offerDetails,
+        closeAction: this.props.navigator.dismissLightBox
+      },
+      style: {
+        backgroundBlur: "none",
+        backgroundColor: "#000000aa",
+        tapBackgroundToDismiss: true
+      }
+    });
+  }
+
+
+
   getGatePass = () => {
+    this.setState({placeDetailsLoading: true});
     const url = 'http://goloco-prod.ap-south-1.elasticbeanstalk.com/goloco/event/generatepass?golocoEventId=' + this.props.selectedPlace.id;
-    //this.setState({ placeDetailsLoading: true });
     fetch(url, {
       method: 'POST',
       headers: {
@@ -63,17 +82,35 @@ class MyClass extends React.Component {
         'Authorization': 'Bearer ' + this.props.auth.access_token
       }
     })
+      .then(res => res.json())
       .then(res => {
-        res.json();
-      })
-      .then(res => {
-        console.log(res);
-        this.props.navigator.dismissModal();
-        if (res.ok) {
+        this.setState({placeDetailsLoading: false});
+        if (res.hasError) {
+          return;
         }
+
+        this.props.navigator.dismissModal();
+        this.props.navigator.showInAppNotification({
+         screen: "x.Notification",
+         passProps: {
+            style: 'INFO',
+            message: 'Gate Pass Generated!',
+            subMessage: 'Your gate pass to event ' + this.props.selectedPlace.name + ' has been generated. See you there. :)',
+            icon: 'ticket',
+            buttons: [{
+              text: 'VIEW PASS',
+              type: 'primary',
+              onPress: function() {
+                alert('called');
+              }
+            }]
+         },
+         autoDismissTimerSec: 5
+        });
+
       })
       .catch(error => {
-        //this.setState({ error, placeDetailsLoading: false });
+        this.setState({placeDetailsLoading: false});        
       });
   };
 
@@ -102,6 +139,7 @@ class MyClass extends React.Component {
       //TODO: call if details are to be fetched from server
       //this.loadPlaceDetailsData(this.props.selectedPlace.placeId);
     //}
+
   }
 
   closeModal = () => {
@@ -125,15 +163,6 @@ class MyClass extends React.Component {
             <Text onPress={this.showTermsAndConditions} style={{position:'absolute', bottom:10, right:19, backgroundColor:'transparent', color: '#fff', fontSize: 10, fontWeight: '500', backgroundColor:'orange', paddingVertical:6, paddingHorizontal:10}}>Read T&C</Text>
           </View>
           
-          { this.state.placeDetailsLoading &&
-            <View style={{width:'100%', flex:1, flexDirection: 'row', justifyContent:'center', alignItems:'center'}}>
-              <View style={styles.verticalSeparatorMedium}/>
-                <ActivityIndicator animating size="small" />
-              <View style={styles.verticalSeparatorMedium}/>
-            </View>
-          } 
-
-          { !this.state.placeDetailsLoading &&
           <View style={{paddingVertical: 5, width:'100%', padding:20, flexDirection: 'column', justifyContent:'center', alignItems:'center'}}>
 
             <View style={styles.verticalSeparatorMedium}/>
@@ -188,7 +217,6 @@ class MyClass extends React.Component {
 
             </View>
           </View>
-          }
 
           <View style={styles.verticalSeparatorMedium}></View>
 
@@ -197,7 +225,7 @@ class MyClass extends React.Component {
             <ScrollView style={{height: 80, width: width, paddingHorizontal:20}} horizontal showsHorizontalScrollIndicator={false} snapToAlignment={'end'}>
 
               {this.props.selectedPlace.golocoOffers.map((value, key) => {
-                  return <View key={value.id} style={[styles.offersBox, {height: 70}]}><Text style={styles.offersText}>{value.offerName}</Text></View>
+                  return <TouchableOpacity onPress={() => this.showOfferDetails({offerName: value.offerName, offerDetails: value.offerDetails})} key={value.id} style={[styles.offersBox, {height: 70}]}><Text style={styles.offersText}>{value.offerName}</Text></TouchableOpacity>
               })}            
 
               <View style={[{width:20, backgroundColor:'transparent'}]}>
@@ -212,6 +240,13 @@ class MyClass extends React.Component {
         <TouchableOpacity activeOpacity={0.7} style={styles.buttonPrimary} onPress={this.getGatePass}>
             <Text style={{color:'#fff', fontWeight: '700'}}>Get Gate Pass</Text>
         </TouchableOpacity>
+
+        { this.state.placeDetailsLoading && 
+          <View style={styles.loadingMaskDark}>
+                <ActivityIndicator animating size="large" />
+          </View>
+        }
+
       </View>
 
     );

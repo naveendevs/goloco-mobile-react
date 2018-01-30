@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 class InvitesItem extends React.Component {
 
-  	constructor(props) {
+	constructor(props) {
     	super(props);
     	this.state = {
     		loading: false,

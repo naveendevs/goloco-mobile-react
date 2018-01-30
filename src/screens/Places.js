@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, ScrollView, View, Button, Text, FlatList, ActivityIndicator, SectionList, Dimensions } from 'react-native';
+import { StyleSheet, Animated, ScrollView, View, Button, Text, FlatList, ActivityIndicator, SectionList, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import moment from 'moment';
 
 import PlacesItem from '../components/PlacesItem';
 import { Style as styles } from '../styles/Common';
@@ -71,7 +72,7 @@ class MyClass extends React.Component {
   loadPlacesData = () => {
     const page = this.state.placesDataCurrentPage;
     const size = 5;
-    const url = 'http://goloco-prod.ap-south-1.elasticbeanstalk.com/goloco/event/getevents?pageNo='+ page +'&pageSize=30&eventDate=1-1-2018&searchText=';
+    const url = 'http://goloco-prod.ap-south-1.elasticbeanstalk.com/goloco/event/getevents?pageNo='+ page +'&pageSize=30&eventDate=' + moment(new Date()).format('DD-MM-YYYY') + '&searchText=';
     //const url = 'http://reactec.getsandbox.com/places?page='+page;
     this.setState({ placesDataLoading: true });
     fetch(url, {
@@ -121,7 +122,7 @@ class MyClass extends React.Component {
               />
           }
           ListHeaderComponent={
-            <View style={[styles.listHeader, {height:60, backgroundColor: 'transparent'}]}><Text/><Text style={styles.listHeaderTitle}>Deals for Today</Text><Text/></View>
+            <View style={[styles.listHeader, {height:30, backgroundColor: 'transparent'}]}><Text/><Text style={[styles.listHeaderTitle, {color:'#000000aa'}]}>Today's Events</Text><Text/></View>
           }
           ListFooterComponent={() => {
               if (this.state.placesDataIsLastPage) return (
@@ -158,7 +159,7 @@ class MyClass extends React.Component {
                 </View>
               );
           }}
-          ItemSeparatorComponent = {() => <View style={{height: StyleSheet.hairlineWidth, width:100, alignSelf:'center', backgroundColor: '#bbb', marginVertical:20}}></View>}
+          ItemSeparatorComponent = {() => <View style={{height: StyleSheet.hairlineWidth, width:100, alignSelf:'center', marginVertical:0}}></View>}
         />
     );
   }

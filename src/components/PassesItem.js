@@ -8,12 +8,36 @@ function Row({title, image, subitems, status, height, actionIcon, onPress, multi
   		<View style={{paddingHorizontal:20}}>
 	    
 		    <TouchableOpacity style={[styles.itemContainer]} onPress={onPress} activeOpacity={0.9}>
-				<View style={{width:'60%', height:140, borderRadius:10, borderWidth:0}}>
+				<View style={{width:'60%', height:160, borderRadius:10, borderWidth:0}}>
 					<Image style={styles.itemImage} source={{uri: image}} />
+					<View style={{position: 'absolute', backgroundColor:'transparent', top:0, bottom:0, left:0, right:0, padding: 20, flexDirection:'column', alignItems:'center', justifyContent:'center'}}>
+						<Icon name="check-circle-o" style={[styles.shadow, styles.itemTitle, {color:'#fff', fontSize:46, fontWeight:'500'}]}/>
+						<Text style={[styles.shadow, styles.itemSubtitle]}>CHECKED-IN</Text>
+						<View style={{marginVertical:10, borderTopWidth:1, borderColor:'#ffffffcc', width:'100%'}}/>
+						<Text style={[styles.shadow, styles.itemTitle, {textAlign:'center'}]}>{title}</Text>
+						<Text style={[styles.shadow, styles.itemSubtitle]}>{subitems.location}</Text>
+					</View>
 				</View>
 
-				<View style={{width:'40%', height:140, borderRadius:10, borderWidth:0, backgroundColor:'#3f51b5'}}>
-					<View style={{width:1, height:140, borderWidth:1, borderStyle:'dashed', borderColor:'#fff', position:'absolute', top:0, left:-1}}>
+				<View style={{width:'40%', height:160, borderRadius:10, borderWidth:0, padding:20, backgroundColor:'#3f51b5', flexDirection:'column', alignItems:'flex-start', justifyContent:'space-between'}}>
+
+					<View style={{flexDirection:'column', alignItems:'flex-start', justifyContent:'center'}}>
+						<Text style={[styles.passLabel]}>EVENT STATUS</Text>
+						<Text style={[styles.passValue]}>UPCOMING</Text>
+					</View>
+
+					<View style={{flexDirection:'column', alignItems:'flex-start', justifyContent:'center', marginTop:5}}>
+						<Text style={[styles.passLabel]}>EVENT DATE</Text>
+						<Text style={[styles.passValue]}>TOMORROW</Text>
+					</View>
+
+					<View style={{flexDirection:'column', alignItems:'flex-start', justifyContent:'center', marginTop:5}}>
+						<Text style={[styles.passLabel]}>EVENT STATUS</Text>
+						<Text style={[styles.passValue]}>UPCOMING</Text>
+					</View>
+
+
+					<View style={{width:1, height:160, borderWidth:1, borderStyle:'dashed', borderColor:'#ffffffaa', position:'absolute', top:0, left:-1}}>
 					</View>
 				</View>
 
@@ -50,7 +74,7 @@ const styles = StyleSheet.create({
 		flex:1,
 	},
 	itemTitle: {
-		fontSize: 16,
+		fontSize: 20,
 		color: "#fafafa",
 		fontWeight: '700'
 	},
@@ -60,6 +84,18 @@ const styles = StyleSheet.create({
 		fontWeight: '600',
 		color: "#fafafa"
 	},
+
+	passLabel: {
+		fontSize: 8,
+		fontWeight: '600',
+		color: "#ffffff77"
+	},
+	passValue: {
+		fontSize: 12,
+		fontWeight: '600',
+		color: "#ffffffcc"
+	},
+
 	itemIcon: {
 		width:10,
 		fontSize:12,
@@ -118,8 +154,9 @@ const styles = StyleSheet.create({
       backgroundColor: "#ccc",
       resizeMode: Image.resizeMode.fit,
       width: '100%',
-      height: 140,
-      height:140, borderRadius:10, borderWidth:0
+      height: 160,
+	  borderRadius:10, 
+	  borderWidth:0
 	}	
 });
 

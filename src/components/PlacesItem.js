@@ -1,25 +1,45 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import {StyleSheet, View, Text, TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight, Platform, Image} from 'react-native';
+import {StyleSheet, Animated, View, Text, TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight, Platform, Image} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-function Row({title, image, subitems, status, height, actionIcon, onPress, multiline}) {
-  return (
-  		<View style={{paddingHorizontal:20}}>
+class PlacesItem extends React.Component {
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			loading: false,
+			animProp: new Animated.Value(0.7),
+			status: props.status
+		}
+	}
+
+	componentWillMount() {
+	    Animated.spring(
+	      this.state.animProp,
+	      {
+	        toValue: 1,
+	        useNativeDriver: true
+	      }
+	    ).start();
+	}
+
+	render() {
+  	return (
+  		<Animated.View style={{paddingHorizontal:20, marginTop:20, transform:[{scale: this.state.animProp}] }}>
 	    
-		    <TouchableOpacity style={[styles.itemContainer]} onPress={onPress} activeOpacity={0.9}>
+		    <TouchableOpacity style={[styles.itemContainer]} onPress={this.props.onPress} activeOpacity={0.9}>
 				<View style={{width:'100%'}}>
-					<Image style={styles.itemImage} source={{uri: image}} />
+					<Image style={styles.itemImage} source={{uri: this.props.image}} />
 				</View>
 
 				<View style={{position:'absolute', bottom:6, left:10}}>
 		            <Text style={[styles.shadow, {backgroundColor:'transparent', color: '#fff', fontSize: 18, fontWeight: '700'}]}>
-		              {title}
+		              {this.props.title}
 		            </Text>
 		            <View style={{marginLeft:2, marginTop:2, flexDirection:'row', justifyContent:'flex-start', alignItems:'center', backgroundColor:'transparent'}}>
 						<Icon name="map-marker" color='#fff' style={[styles.shadow]}/>
 			            <Text style={[styles.shadow, {marginLeft:4, backgroundColor:'transparent', color: '#fff', fontSize: 13, fontWeight: '500'}]}>
-			              {subitems.location}
+			              {this.props.subitems.location}
 			            </Text>
 		            </View>
 	            </View>
@@ -28,7 +48,7 @@ function Row({title, image, subitems, status, height, actionIcon, onPress, multi
 		            { false && 
 		            <View style={{marginRight:10, flexDirection:'column', justifyContent:'flex-start', alignItems:'center', backgroundColor:'transparent'}}>
 			            <Text style={[styles.shadow, {backgroundColor:'transparent', color: '#fff', fontSize: 22, fontWeight: '700'}]}>
-			              {subitems.checkinCount}
+			              {this.props.subitems.checkinCount}
 			            </Text>
 			            <Text style={[styles.shadow, {backgroundColor:'transparent', color: '#fff', fontSize: 8, fontWeight: '600'}]}>
 			            CHECKINS
@@ -39,7 +59,7 @@ function Row({title, image, subitems, status, height, actionIcon, onPress, multi
 
 		            <View style={{flexDirection:'column', justifyContent:'flex-start', alignItems:'center', backgroundColor:'transparent'}}>
 			            <Text style={[styles.shadow, {backgroundColor:'transparent', color: '#fff', fontSize: 22, fontWeight: '700'}]}>
-			              {subitems.offersCount}
+			              {this.props.subitems.offersCount}
 			            </Text>
 			            <Text style={[styles.shadow, {backgroundColor:'transparent', color: '#fff', fontSize: 8, fontWeight: '600'}]}>
 			            OFFERS
@@ -49,19 +69,17 @@ function Row({title, image, subitems, status, height, actionIcon, onPress, multi
 	            </View>
 			</TouchableOpacity>
 
-		    <TouchableOpacity style={[styles.itemContainer, {flexDirection:'row', justifyContent:'center', alignItems:'center' ,backgroundColor: '#3f51b5', height: 50}]} onPress={onPress} activeOpacity={0.7}>
+		    <TouchableOpacity style={[styles.itemContainer, {flexDirection:'row', justifyContent:'center', alignItems:'center' ,backgroundColor: '#3f51b5', height: 50}]} onPress={this.props.onPress} activeOpacity={0.7}>
 				<View style={[styles.itemTitleContainer]}>
 					<Text style={{color:'#eee', fontWeight: '700'}}>GET GATE PASS</Text>
 				</View>
 			</TouchableOpacity>
 	    
-	    </View>
+	    </Animated.View>
   );
 }
 
-Row.propTypes = {
-	title: PropTypes.string.isRequired
-};
+}
 
 const styles = StyleSheet.create({
 	shadow: {
@@ -150,4 +168,4 @@ const styles = StyleSheet.create({
 	}	
 });
 
-export default Row;
+export default PlacesItem;

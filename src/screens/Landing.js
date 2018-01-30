@@ -100,7 +100,7 @@ export default class Landing extends React.Component {
                 },
                 animationType: Platform.OS === 'ios' ? 'fade' : 'fade',
                 tabsStyle: {
-                  initialTabIndex: 1,
+                  initialTabIndex: 0,
                   tabBarBackgroundColor: '#eee',
                   tabBarSelectedButtonColor: '#3f51b5',
                   tabBarButtonColor: '#aaa'
@@ -134,6 +134,9 @@ export default class Landing extends React.Component {
   }
 
   componentDidMount() {
+    //this.reSignUp();
+    //return;
+
     this.setState({loading: true});
     try {
       AsyncStorage.getItem('@GolocoStore:userObject', (error, user) => {
@@ -181,14 +184,14 @@ export default class Landing extends React.Component {
     return (
         <View style={{backgroundColor: '#3f51b5', width:'100%', flex:1, paddingHorizontal:40, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
 
-          <View style={{alignItems:'center', width:'100%', marginTop:140}}>
+          <View style={{alignItems:'center', width:'100%',opacity:0.95, marginTop:140}}>
             <Image style={{width:600, height:200}} resizeMode={'contain'} source={require('../../img/goloco-landing.png')} />
           </View>
 
           { (this.state.userStatus == 'NOT_REGISTERED') &&
             <View style={{width:'100%'}}>
-              <TouchableOpacity onPress={this.onSignUp} activeOpacity={0.7} style={[styles.buttonPrimary, {backgroundColor:'#fafafa', marginTop:50, height:50}]}>
-                <Text style={{color:'#333', fontSize:14, fontWeight: '600'}}>Request Invite</Text>
+              <TouchableOpacity onPress={this.onSignUp} activeOpacity={0.7} style={[styles.buttonPrimary, {backgroundColor:'#ffffffdd', borderRadius:5, marginTop:50, height:50}]}>
+                <Text style={{color:'#333', fontSize:14, fontWeight: '600'}}>REQUEST INVITE</Text>
               </TouchableOpacity>
             </View>
           }
@@ -202,7 +205,7 @@ export default class Landing extends React.Component {
 
           { this.state.loading &&
             <View style={{width:'100%', height:50, flexDirection:'row', alignItems: 'center', justifyContent:'center'}}>
-                  <ActivityIndicator animating size="large" />
+                  <ActivityIndicator color='#ffffffaa' animating size="large" />
             </View>
           }
 

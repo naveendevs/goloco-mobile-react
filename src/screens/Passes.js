@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, ScrollView, View, Button, Text, FlatList, ActivityIndicator, SectionList, Dimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
+import moment from 'moment';
 
 import Row from '../components/Row';
 import PassesItem from '../components/PassesItem';
@@ -111,7 +112,7 @@ class MyClass extends React.Component {
   loadActivityLiveData = () => {
     const page = this.state.activityLiveCurrentPage;
     const size = 5;
-    const url = 'http://goloco-prod.ap-south-1.elasticbeanstalk.com/goloco/event/geteventpasses?pageNo='+ page +'&pageSize=30&eventDate=1-1-2018&searchText=';
+    const url = 'http://goloco-prod.ap-south-1.elasticbeanstalk.com/goloco/event/geteventpasses?pageNo='+ page +'&pageSize=30&eventDate='+ moment(new Date()).format('DD-MM-YYYY') +'&searchText=';
     this.setState({ activityLiveLoading: true });
     fetch(url, {
       method: 'GET',
@@ -122,6 +123,22 @@ class MyClass extends React.Component {
     })
       .then(res => res.json())
       .then(res => {
+        //alert(JSON.stringify(res.model.golocoEvents[0].golocoOffersAvailed[0]));
+
+        for (var eventIdx in res.model.golocoEvents) {
+          for(var offerIdx in res.model.golocoEvents[eventIdx].golocoEvent.golocoOffers) {
+            res.model.golocoEvents[eventIdx].golocoEvent.golocoOffers[offerIdx].status = 'NOT_AVAILED';
+            res.model.golocoEvents[eventIdx].golocoEvent.golocoOffers[offerIdx].eventName = res.model.golocoEvents[eventIdx].golocoEvent.name;
+            for (var availedIdx in res.model.golocoEvents[eventIdx].golocoOffersAvailed) {
+              if (res.model.golocoEvents[eventIdx].golocoOffersAvailed[availedIdx].userOfferAvailedId.offerId == res.model.golocoEvents[eventIdx].golocoEvent.golocoOffers[offerIdx].id) {
+                res.model.golocoEvents[eventIdx].golocoEvent.golocoOffers[offerIdx].status = 'AVAILED';
+                //alert('found')
+                break;
+              }
+            }
+          }
+        }
+
         this.setState({
           activityLiveData: page === 1 ? res.model.golocoEvents : [...this.state.activityLiveData, ...res.model.golocoEvents],
           activityLiveLoading: false,
@@ -134,8 +151,20 @@ class MyClass extends React.Component {
   }
 
   componentDidMount() {
-    //this.loadActivityLiveData();
-    this.toggleContextMenu();
+    this.loadActivityLiveData();
+
+    //TEMP
+    false && this.props.navigator.showModal({
+      screen: 'x.Passes.OfferAvail',
+      passProps: {
+      },
+      style: {
+        backgroundBlur: "none",
+        backgroundColor: "#000000aa",
+        tapBackgroundToDismiss: true
+      }
+    });
+
   }
 
   render() {

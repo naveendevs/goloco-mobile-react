@@ -1,7 +1,8 @@
 import React from 'react';
-import {StyleSheet, Image,View, ScrollView, TouchableOpacity, Button, Text} from 'react-native';
+import {StyleSheet, AsyncStorage, Image,View, ScrollView, TouchableOpacity, Button, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Style as stylesCommon } from '../styles/Common';
+import {Navigation} from 'react-native-navigation';
 
 class MyClass extends React.Component {
 
@@ -31,6 +32,61 @@ class MyClass extends React.Component {
     });
   };
 
+  navigateToProfileScreen = () => {
+    this.props.navigator.showModal({
+      screen: 'x.Profile',
+      passProps: {
+        auth: this.props.auth
+      }
+    });
+  };
+
+  navigateToFeedbackScreen = () => {
+    this.props.navigator.showModal({
+      screen: 'x.Feedback',
+      passProps: {
+        auth: this.props.auth,
+        user: this.props.user
+      }
+    });
+  };
+
+  navigateToPrivacyPolicyScreen = () => {
+    this.props.navigator.showModal({
+      screen: 'x.DocumentView',
+      passProps: {
+        title: 'PRIVACY POLICY',
+        contentUri: 'http://www.yegor256.com/2014/12/01/orm-offensive-anti-pattern.html'
+      }
+    });
+  };
+
+  navigateToTermsOfUseScreen = () => {
+    this.props.navigator.showModal({
+      screen: 'x.DocumentView',
+      passProps: {
+        title: 'TERMS OF USE',
+        contentUri: 'http://www.yegor256.com/2014/12/01/orm-offensive-anti-pattern.html'
+      }
+    });
+  };
+
+  signout = () => {
+    try {
+        AsyncStorage.removeItem('@GolocoStore:userObject', (error) => {
+          Navigation.startSingleScreenApp({
+              screen: {
+                screen: 'x.Landing',
+                navigatorStyle: {
+                  navBarHidden: true
+                }
+              }
+          })          
+        });
+    } catch (error) {
+    }
+  };
+
 
   render() {
     return (
@@ -50,7 +106,7 @@ class MyClass extends React.Component {
           <View style={stylesCommon.verticalSeparatorLarge} />
           <View style={stylesCommon.verticalSeparatorLarge} />
 
-          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToInvitesScreen} underlayColor={'#ddd'}>
+          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToProfileScreen} underlayColor={'#ddd'}>
               <View style={styles.contextMenuItemWrapper}>
                   <Icon name="user" style={styles.contextMenuItemIcon} size={14} color="#555" />            
                   <Text style={styles.contextMenuItemText}>PROFILE</Text>
@@ -66,24 +122,31 @@ class MyClass extends React.Component {
           </TouchableOpacity>
           }
           
-          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToInvitesScreen} underlayColor={'#ddd'}>
+          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToFeedbackScreen} underlayColor={'#ddd'}>
               <View style={styles.contextMenuItemWrapper}>
                   <Icon name="comment" style={styles.contextMenuItemIcon} size={14} color="#555" />            
                   <Text style={styles.contextMenuItemText}>GIVE FEEDBACK</Text>
               </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToInvitesScreen} underlayColor={'#ddd'}>
+          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToTermsOfUseScreen} underlayColor={'#ddd'}>
               <View style={styles.contextMenuItemWrapper}>
                   <Icon name="info-circle" style={styles.contextMenuItemIcon} size={14} color="#555" />            
                   <Text style={styles.contextMenuItemText}>TERMS OF USE</Text>
               </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToInvitesScreen} underlayColor={'#ddd'}>
+          <TouchableOpacity style={styles.contextMenuItem} onPress={this.navigateToPrivacyPolicyScreen} underlayColor={'#ddd'}>
               <View style={styles.contextMenuItemWrapper}>
                   <Icon name="info-circle" style={styles.contextMenuItemIcon} size={14} color="#555" />            
                   <Text style={styles.contextMenuItemText}>PRIVACY POLICY</Text>
+              </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.contextMenuItem} onPress={this.signout} underlayColor={'#ddd'}>
+              <View style={styles.contextMenuItemWrapper}>
+                  <Icon name="power-off" style={styles.contextMenuItemIcon} size={14} color="#555" />
+                  <Text style={styles.contextMenuItemText}>SIGN OUT</Text>
               </View>
           </TouchableOpacity>
 
@@ -91,7 +154,7 @@ class MyClass extends React.Component {
             <Text style={{fontSize: 10, fontWeight: '600', color:'#ffffff55'}}>Goloco</Text>
             <Text style={{fontSize: 9, fontWeight: '600', marginTop:3, color:'#ffffff55'}}>v1.0.0 beta</Text>
           </View>
-        
+
         </ScrollView>
 
       </View>

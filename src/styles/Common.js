@@ -9,6 +9,36 @@ export const Style = StyleSheet.create({
 		backgroundColor: '#fff', height: 50, color:'#333'
 	},
 
+	circularButton: {
+		width: 140,
+		height: 140,
+		borderRadius: 70,
+		borderWidth: 5,
+		borderColor: '#ffffffaa',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: 20,
+	},
+
+	roundedButton: {
+		height: 40,
+		borderRadius: 6,
+		borderWidth: 2,
+		borderColor: '#ffffffaa',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: 20,
+	},
+
+	circularButtonText: {
+		fontSize: 14,
+		fontWeight: '800',
+		textAlign: 'center',
+		color: '#ffffffaa'
+	},
+
 	offersBox: {
 		backgroundColor: '#db4437',
 		alignItems: 'center',
@@ -164,6 +194,25 @@ export const Style = StyleSheet.create({
 		bottom: 0,
 		alignItems: 'center',
 		justifyContent: 'center'
+	},
+
+	shadow: {
+		shadowColor : '#000',
+		shadowOpacity : 1,
+		shadowRadius : 3,
+		shadowOffset: {
+			width: 1,
+			height:1
+		}
+	},
+	shadowLight: {
+		shadowColor : '#000',
+		shadowOpacity : 0.6,
+		shadowRadius : 4,
+		shadowOffset: {
+			width: 0,
+			height:2
+		}
 	},
 
 

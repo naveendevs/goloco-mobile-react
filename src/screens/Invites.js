@@ -1,13 +1,16 @@
 import React from 'react';
-import {StyleSheet, Image,View, FlatList,SectionList, ActivityIndicator, TouchableHighlight,TextInput, Button, Text} from 'react-native';
+import {StyleSheet,Animated, Image,View, FlatList,SectionList, ActivityIndicator, TouchableHighlight,TextInput, Button, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {InvitesItem} from '../components/InvitesItem';
 import { Style as styles } from '../styles/Common';
+
+var AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 class MyClass extends React.Component {
 
   constructor(props) {
     super(props);
+    this.fadeAnim = new Animated.Value(0),
     this.state = {
       invitesData: [],
       loading: false,
@@ -20,6 +23,27 @@ class MyClass extends React.Component {
     this.props.navigator.toggleNavBar({to: 'hidden', animated: false});
     this.props.navigator.setStyle({statusBarHidden: true});
 
+  }
+
+
+  onSearchFocus = () => {
+    Animated.timing(                  // Animate over time
+      this.fadeAnim,            // The animated value to drive
+      {
+        toValue: 0.6,                   // Animate to opacity: 1 (opaque)
+        duration: 700,              // Make it take a while
+      }
+    ).start();                        // Starts the animation
+  }
+
+  onSearchBlur = () => {
+    Animated.timing(                  // Animate over time
+      this.fadeAnim,            // The animated value to drive
+      {
+        toValue: 0,                   // Animate to opacity: 1 (opaque)
+        duration: 500,              // Make it take a while
+      }
+    ).start();                        // Starts the animation
   }
 
   closeModal = () => {
@@ -144,8 +168,8 @@ class MyClass extends React.Component {
               />
           }
           renderSectionHeader={(section) =>
-            <View style={[styles.interactiveHeader]}>
-              <TextInput placeholder={'Search...'} onChangeText={(text) => this.searchInvites({text})} style={{paddingHorizontal:10, borderWidth:1, borderColor: '#ccc', height:40, flex:1}}></TextInput>
+            <View style={[styles.interactiveHeader, {opacity: 1}]}>
+              <AnimatedTextInput onBlur={this.onSearchBlur} onFocus={this.onSearchFocus} placeholder={'Search...'} onChangeText={(text) => this.searchInvites({text})} style={{shadowColor:'#888', shadowOpacity: this.fadeAnim, shadowRadius:3, shadowOffset:{width:0,height:0}, backgroundColor:'#fff', paddingHorizontal:10, borderWidth:1, borderColor: '#ccc', height:40, flex:1}}/>
               <TouchableHighlight><Icon onPress={this.closeModal}  name='close' style={{color: '#aaa', fontSize: 32, fontWeight: '700', textAlign: 'right', lineHeight:40, width:50}}/></TouchableHighlight>
             </View>
           }

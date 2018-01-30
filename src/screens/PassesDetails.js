@@ -39,6 +39,26 @@ class MyClass extends React.Component {
     });
   };
 
+  showErrorMessage = (message, title) => {
+        this.props.navigator.showInAppNotification({
+         screen: "x.Notification",
+         passProps: {
+            style: 'ERROR',
+            message: title ? title : "Something's Wrong",
+            subMessage: message,
+            icon: 'ticket',
+            buttons: [{
+              text: 'GOT IT!',
+              type: 'primary',
+              onPress: function() {
+                alert('called');
+              }
+            }]
+         },
+         autoDismissTimerSec: 5
+        });
+  }
+
   showTermsAndConditions = () => {
     this.props.navigator.showLightBox({
       screen: 'x.Places.TermsAndConditions',
@@ -56,8 +76,8 @@ class MyClass extends React.Component {
   };
 
   doCheckIn = () => {
-    const url = 'http://goloco-prod.ap-south-1.elasticbeanstalk.com/goloco/event/checkin?golocoEventId=' + this.props.selectedPlace.golocoEvent.id;
     this.setState({ fullScreenLoading: true });
+    const url = 'http://goloco-prod.ap-south-1.elasticbeanstalk.com/goloco/event/checkin?golocoEventId=' + this.props.selectedPlace.golocoEvent.id;
     fetch(url, {
       method: 'POST',
       headers: {
@@ -68,15 +88,48 @@ class MyClass extends React.Component {
     .then(res => res.json())
     .then(res => {
       this.setState({ fullScreenLoading: false });
-      console.log('---------------checkin');
-      console.log(res);
+      if (!res.hasError) {
+        this.props.navigator.showInAppNotification({
+         screen: "x.Notification",
+         passProps: {
+            style: 'INFO',
+            message: 'Checked-In!',
+            subMessage: "You have been checked-in to " + this.props.selectedPlace.golocoEvent.name + ". Don't forget to avail exclusive offers.",
+            icon: 'check-circle-o',
+            buttons: []
+         },
+         autoDismissTimerSec: 5
+        });
+      } 
+      else {
+        this.showErrorMessage('Error checking-in to ' + this.props.selectedPlace.golocoEvent.name);
+      }
     })
     .catch(error => {
       this.setState({ fullScreenLoading: false });
     });
   }
 
-  doAvailOffer = () => {
+  doAvailOffer = (offerObj) => {
+    if (offerObj.offerType == 'GOLOCO_FREE_DRINKS') {
+      this.props.navigator.showLightBox({
+        screen: 'x.Passes.OfferAvail',
+        passProps: {
+          offerObj: offerObj,
+          eventObj: this.props.selectedPlace,
+          user: this.props.user,
+          auth: this.props.auth,
+        },
+        style: {
+          backgroundBlur: "none",
+          backgroundColor: "#000000aa",
+          tapBackgroundToDismiss: true
+        }
+      });
+    } 
+    else {
+      this.showOfferDetails(offerObj);
+    }
   }
 
   doUploadBill = () => {
@@ -97,14 +150,32 @@ class MyClass extends React.Component {
     })
   }
 
+  showOfferDetails = (offerObj) => {
+    this.props.navigator.showLightBox({
+      screen: 'x.LightBox',
+      passProps: {
+        title: offerObj.offerName,
+        content: offerObj.offerDetails,
+        closeAction: this.props.navigator.dismissLightBox
+      },
+      style: {
+        backgroundBlur: "none",
+        backgroundColor: "#000000aa",
+        tapBackgroundToDismiss: true
+      }
+    });
+  }
+
   componentDidMount() {
     //if (this.props.selectedPlace.id != this.state.placeDetailsData.id) {
       //TODO: call if details are to be fetched from server
       //this.loadPlaceDetailsData(this.props.selectedPlace.placeId);
     //}
-    
+    //alert(JSON.stringify(this.props.selectedPlace))
+
     this.setState({
       isPassStatusCheckedIn: (this.props.selectedPlace.status == 'CHECKED_IN'),
+      isPassStatusCheckedOut: (this.props.selectedPlace.status == 'CHECKED_OUT'),
       isPassStatusBillUploaded: this.props.selectedPlace.billUploaded,
       billURL: this.props.selectedPlace.billImageUrl
     })
@@ -132,7 +203,7 @@ class MyClass extends React.Component {
             <Text onPress={this.showTermsAndConditions} style={{position:'absolute', bottom:10, right:19, backgroundColor:'transparent', color: '#fff', fontSize: 10, fontWeight: '500', backgroundColor:'orange', paddingVertical:6, paddingHorizontal:10}}>Read T&C</Text>
           </View>
             
-          { this.props.selectedPlace.golocoEvent.golocoOffers && !this.state.isPassStatusCheckedIn && !this.state.isPassStatusBillUploaded && 
+          { this.props.selectedPlace.golocoEvent.golocoOffers && !this.state.isPassStatusCheckedIn && !this.state.isPassStatusCheckedOut && !this.state.isPassStatusBillUploaded && 
           <View style={{flexDirection: "column", justifyContent: 'center', alignItems: 'center'}}>
             <View style={{flexDirection: "row", justifyContent: 'center', alignItems: 'center'}}>
               <Icon name='gift' style={{color: '#3f51b5', fontSize: 100, marginTop:30, fontWeight: '700'}}/>
@@ -143,7 +214,7 @@ class MyClass extends React.Component {
               <ScrollView style={{height: 80, width: width, paddingHorizontal:20}} horizontal showsHorizontalScrollIndicator={false} snapToAlignment={'end'}>
 
                 {this.props.selectedPlace.golocoEvent.golocoOffers.map((value, key) => {
-                    return <View key={value.id} style={[styles.offersBox, {height: 70}]}><Text style={styles.offersText}>{value.offerName}</Text></View>
+                    return <TouchableOpacity onPress={() => this.showOfferDetails({offerName: value.offerName, offerDetails: value.offerDetails})} key={value.id} style={[styles.offersBox, {height: 70}]}><Text style={styles.offersText}>{value.offerName}</Text></TouchableOpacity>
                 })}            
 
                 <View style={[{width:20, backgroundColor:'transparent'}]}>
@@ -153,7 +224,7 @@ class MyClass extends React.Component {
           </View>
           }
 
-          { this.state.isPassStatusCheckedIn && !this.state.isPassStatusBillUploaded &&
+          { (this.state.isPassStatusCheckedIn || this.state.isPassStatusCheckedOut) && !this.state.isPassStatusBillUploaded &&
           <View style={{flexDirection: "column", justifyContent: 'center', alignItems: 'center'}}>
             <View style={{flexDirection: "row", justifyContent: 'center', alignItems: 'center'}}>
               <Icon name='check-circle-o' style={{color: '#3f51b5', fontSize: 100, marginTop:30, fontWeight: '700'}}/>
@@ -165,7 +236,7 @@ class MyClass extends React.Component {
               <ScrollView style={{height: 80, width: width, paddingHorizontal:20}} horizontal showsHorizontalScrollIndicator={false} snapToAlignment={'end'}>
 
                 {this.props.selectedPlace.golocoEvent.golocoOffers.map((value, key) => {
-                    return <View key={value.id} style={[styles.offersBox, {height: 70}]}><Text style={styles.offersText}>{value.offerName}</Text></View>
+                    return <TouchableOpacity activeOpacity={0.7} onPress={() => this.doAvailOffer(value)} key={value.id} style={[styles.offersBox, {height: 70}]}><Text style={styles.offersText}>{value.offerName}</Text>{value.status == 'AVAILED' && <Text style={{position:'absolute', top:0, bottom:0, left:0, right:0, backgroundColor:'#ffffff66', color:'#00000033', fontSize:20, textAlign:'center'}}></Text>}</TouchableOpacity>
                 })}            
 
                 <View style={[{width:20, backgroundColor:'transparent'}]}>
@@ -175,7 +246,7 @@ class MyClass extends React.Component {
           </View>
           }
 
-          { this.state.isPassStatusCheckedIn && this.state.isPassStatusBillUploaded &&
+          { (this.state.isPassStatusCheckedIn || this.state.isPassStatusCheckedOut) && this.state.isPassStatusBillUploaded &&
           <View style={{width:'100%', flexDirection: "column", justifyContent: 'center', alignItems: 'center'}}>
             <View style={{flexDirection: "row", justifyContent: 'center', alignItems: 'center'}}>
               <Icon name='check-circle-o' style={{color: '#3f51b5', fontSize: 100, marginTop:30, fontWeight: '700'}}/>
@@ -192,23 +263,29 @@ class MyClass extends React.Component {
           <View style={styles.verticalSeparatorMedium}></View>
         </ScrollView>
 
-        { !this.state.isPassStatusCheckedIn && !this.state.isPassStatusBillUploaded &&
+        { !this.state.isPassStatusCheckedIn && !this.state.isPassStatusCheckedOut && !this.state.isPassStatusBillUploaded &&
         <TouchableOpacity activeOpacity={0.7} style={styles.buttonPrimary} onPress={this.doCheckIn}>
             <Text style={{color:'#fff', fontWeight: '700'}}>CHECK IN</Text>
         </TouchableOpacity>
         }
 
-        { this.state.isPassStatusCheckedIn && !this.state.isPassStatusBillUploaded &&
+        { (this.state.isPassStatusCheckedIn || this.state.isPassStatusCheckedOut) && !this.state.isPassStatusBillUploaded &&
         <TouchableOpacity activeOpacity={0.7} style={styles.buttonPrimary} onPress={this.doUploadBill}>
             <Text style={{color:'#fff', fontWeight: '700'}}>UPLOAD BILL</Text>
         </TouchableOpacity>
         }
 
-        { this.state.isPassStatusCheckedIn && this.state.isPassStatusBillUploaded &&
+        { (this.state.isPassStatusCheckedIn || this.state.isPassStatusCheckedOut) && this.state.isPassStatusBillUploaded &&
         <TouchableOpacity activeOpacity={0.7} style={styles.buttonPrimary} onPress={this.closeModal}>
             <Text style={{color:'#fff', fontWeight: '700'}}>CLOSE</Text>
         </TouchableOpacity>
         }
+
+        { this.state.fullScreenLoading && 
+          <View style={styles.loadingMaskDark}>
+                <ActivityIndicator animating size="large" />
+          </View>
+        }        
       
       </View>
 
